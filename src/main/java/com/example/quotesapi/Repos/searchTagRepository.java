@@ -1,11 +1,10 @@
 package com.example.quotesapi.Repos;
 
-import com.example.quotesapi.Domains.searchTag;
+import com.example.quotesapi.Domains.SearchTag;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 
-public interface searchTagRepository extends JpaRepository<searchTag,Long> {
+public interface searchTagRepository extends JpaRepository<SearchTag,Long> {
 }

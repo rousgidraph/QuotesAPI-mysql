@@ -12,14 +12,14 @@ import java.util.Set;
 @Getter
 @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class searchTag {
+public class SearchTag {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long tagId;
     private String tag;
     @ManyToMany(mappedBy = "quoteTags",fetch = FetchType.LAZY)
     @JsonBackReference
-    Set<quotes> qoutes;
+    Set<Quotes> qoutes;
 
 
     @Override

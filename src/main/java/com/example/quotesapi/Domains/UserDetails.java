@@ -15,7 +15,7 @@ import java.util.Set;
 @Getter
 @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class userDetails {
+public class UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
@@ -29,11 +29,11 @@ public class userDetails {
 
     @OneToMany(mappedBy = "submittedBy",fetch = FetchType.EAGER)
     @JsonBackReference
-    private Set<quotes> submittedQuotes;
+    private Set<Quotes> submittedQuotes;
 
     @ManyToMany (mappedBy="verifiers")
     @JsonBackReference
-    private Set<quotes> verifiedQuotes;
+    private Set<Quotes> verifiedQuotes;
 
     @Override
     public String toString() {

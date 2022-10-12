@@ -15,7 +15,7 @@ import java.util.Set;
 @Getter
 @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class quotes {
+public class Quotes {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long quoteId;
@@ -25,17 +25,17 @@ public class quotes {
             joinColumns = @JoinColumn(name="quoteId"),
             inverseJoinColumns = @JoinColumn(name = "tagId"))
     @JsonManagedReference
-    Set<searchTag> quoteTags=new HashSet<>();
+    Set<SearchTag> quoteTags=new HashSet<>();
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "verifyMap",
             joinColumns = @JoinColumn(name="quoteId"),
             inverseJoinColumns = @JoinColumn(name = "userId"))
     @JsonManagedReference
-    private Set<userDetails> verifiers=new HashSet<>();
+    private Set<UserDetails> verifiers=new HashSet<>();
     @ManyToOne()
     @JoinColumn(name = "userId",nullable = false)
-    private userDetails submittedBy;
+    private UserDetails submittedBy;
     @Column(name="dateSubmitted", updatable = false,nullable = false)
     @CreationTimestamp
     private Date dateSubmitted;

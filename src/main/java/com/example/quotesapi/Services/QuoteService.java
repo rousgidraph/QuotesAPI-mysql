@@ -1,8 +1,8 @@
 package com.example.quotesapi.Services;
 
-import com.example.quotesapi.Domains.quotes;
-import com.example.quotesapi.Domains.searchTag;
-import com.example.quotesapi.Domains.userDetails;
+import com.example.quotesapi.Domains.Quotes;
+import com.example.quotesapi.Domains.SearchTag;
+import com.example.quotesapi.Domains.UserDetails;
 import com.example.quotesapi.Repos.quotesRepository;
 import com.example.quotesapi.Repos.searchTagRepository;
 import com.example.quotesapi.Repos.userDetailsRepository;
@@ -12,10 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -38,10 +35,10 @@ public class QuoteService {
 
     void startUp() throws JsonProcessingException {
         log.info("Starting up");
-        userDetails user1 = new userDetails();
-        userDetails user2 = new userDetails();
-        userDetails user3 = new userDetails();
-        userDetails user4 = new userDetails();
+        UserDetails user1 = new UserDetails();
+        UserDetails user2 = new UserDetails();
+        UserDetails user3 = new UserDetails();
+        UserDetails user4 = new UserDetails();
 
         user1.setFirstName("John");
         user1.setSecondName("Lenon");
@@ -62,8 +59,8 @@ public class QuoteService {
         //save the users
         userDetailsRepo.saveAll(List.of(user1,user2,user3,user4));
 
-        searchTag tag1 = new searchTag();
-        searchTag tag2 = new searchTag();
+        SearchTag tag1 = new SearchTag();
+        SearchTag tag2 = new SearchTag();
 
         tag1.setTag("Enviromental");
         tag2.setTag("Tech");
@@ -72,10 +69,10 @@ public class QuoteService {
         //save the tags
         searchTagRepo.saveAll(List.of(tag1,tag2));
 
-        quotes quotes1 = new quotes();
-        quotes quotes2 = new quotes();
-        quotes quotes3 = new quotes();
-        quotes quotes4 = new quotes();
+        Quotes quotes1 = new Quotes();
+        Quotes quotes2 = new Quotes();
+        Quotes quotes3 = new Quotes();
+        Quotes quotes4 = new Quotes();
 
         quotes1.setQuoteStatement("Graduation interesting founder appliances utilization expenditure albania, women representative standings upon infrastructure sao volunteers, proof personals guaranteed moss geneva denver emerging, survive. ");
         quotes1.setVerifiers(Set.of(user1,user3));
@@ -102,19 +99,19 @@ public class QuoteService {
         quotesRepo.saveAll(List.of(quotes1,quotes2,quotes4));
 
 
-        Optional<quotes> byId = quotesRepo.findById(2L);
+        Optional<Quotes> byId = quotesRepo.findById(2L);
         Hibernate.initialize(byId.get());
         log.info("Value returned {}",byId.get().toString());
         ObjectMapper mapper = new ObjectMapper();
         String asString = mapper.writeValueAsString(byId.get());
         log.info("Json {}",asString);
 
-        Optional<userDetails> repoById = userDetailsRepo.findById(1L);
+        Optional<UserDetails> repoById = userDetailsRepo.findById(1L);
         log.info("User details : {}",mapper.writeValueAsString(repoById.get().getSubmittedQuotes()));
 
 
-        Optional<searchTag> searchTag = searchTagRepo.findById(1L);
-        com.example.quotesapi.Domains.searchTag proxy = searchTag.get();
+        Optional<SearchTag> searchTag = searchTagRepo.findById(1L);
+        SearchTag proxy = searchTag.get();
         Hibernate.initialize(proxy);
         log.info("Search tag info : {}",mapper.writeValueAsString(proxy));
 
