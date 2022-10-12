@@ -13,7 +13,7 @@ public class QuotesApiApplication {
 	// TODO: 12/10/2022 Somethings to cover 
 	// TODO: 12/10/2022 pagination  
 	// TODO: 12/10/2022 validation 
-	// TODO: 12/10/2022 mapstruct 
+	// TODO: 12/10/2022 mapstruct
 	
 
 }
