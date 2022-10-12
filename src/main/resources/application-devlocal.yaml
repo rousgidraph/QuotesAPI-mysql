@@ -1,0 +1,17 @@
+## spring configs
+spring:
+
+  datasource:
+    username: springboot
+    url: jdbc:mysql://localhost:3306/quotesData
+    password: springboot
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: 'false'
+    hibernate:
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+      ddl-auto: create
+    show-sql: 'false'
