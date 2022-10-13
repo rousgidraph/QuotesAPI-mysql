@@ -17,6 +17,8 @@ public class UserDetailsDTO {
     private String email;
     private Date dateJoined;
 
+    private int submittedQuotesCount;
+
 
     @Override
     public String toString() {
@@ -26,6 +28,7 @@ public class UserDetailsDTO {
                 "    \"secondName\": \""+secondName+"\",\n" +
                 "    \"email\": \""+email+"\",\n" +
                 "    \"dateJoined\": "+dateJoined+"\n" +
+                "    \"SubmittedQuotes\": "+submittedQuotesCount+"\n" +
                 "}";
     }
 }

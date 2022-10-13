@@ -1,8 +1,14 @@
 package com.example.quotesapi.Services;
 
+import com.example.quotesapi.DTOs.QuotesDTO;
+import com.example.quotesapi.DTOs.VerificationResponse;
 import com.example.quotesapi.Domains.Quotes;
 import com.example.quotesapi.Domains.SearchTag;
 import com.example.quotesapi.Domains.UserDetails;
+import com.example.quotesapi.Exceptions.DatabaseException;
+import com.example.quotesapi.Exceptions.QuoteNotFoundException;
+import com.example.quotesapi.Exceptions.UserNotFoundException;
+import com.example.quotesapi.Mappers.QuoteMapper;
 import com.example.quotesapi.Repos.quotesRepository;
 import com.example.quotesapi.Repos.searchTagRepository;
 import com.example.quotesapi.Repos.userDetailsRepository;
@@ -11,8 +17,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -31,8 +39,11 @@ public class QuoteService {
     @Autowired
     userDetailsRepository userDetailsRepo;
 
+    @Autowired
+    QuoteMapper quoteMapper;
 
 
+//    @PostConstruct
     void startUp() throws JsonProcessingException {
         log.info("Starting up");
         UserDetails user1 = new UserDetails();
@@ -98,25 +109,74 @@ public class QuoteService {
         quotesRepo.save(quotes3);
         quotesRepo.saveAll(List.of(quotes1,quotes2,quotes4));
 
-
-        Optional<Quotes> byId = quotesRepo.findById(2L);
-        Hibernate.initialize(byId.get());
-        log.info("Value returned {}",byId.get().toString());
-        ObjectMapper mapper = new ObjectMapper();
-        String asString = mapper.writeValueAsString(byId.get());
-        log.info("Json {}",asString);
-
-        Optional<UserDetails> repoById = userDetailsRepo.findById(1L);
-        log.info("User details : {}",mapper.writeValueAsString(repoById.get().getSubmittedQuotes()));
-
-
-        Optional<SearchTag> searchTag = searchTagRepo.findById(1L);
-        SearchTag proxy = searchTag.get();
-        Hibernate.initialize(proxy);
-        log.info("Search tag info : {}",mapper.writeValueAsString(proxy));
+//
+//        Optional<Quotes> byId = quotesRepo.findById(2L);
+//        Hibernate.initialize(byId.get());
+//        log.info("Value returned {}",byId.get().toString());
+//        ObjectMapper mapper = new ObjectMapper();
+//        String asString = mapper.writeValueAsString(byId.get());
+//        log.info("Json {}",asString);
+//
+//        Optional<UserDetails> repoById = userDetailsRepo.findById(1L);
+//        log.info("User details : {}",mapper.writeValueAsString(repoById.get().getSubmittedQuotes()));
+//
+//
+//        Optional<SearchTag> searchTag = searchTagRepo.findById(1L);
+//        SearchTag proxy = searchTag.get();
+//        Hibernate.initialize(proxy);
+//        log.info("Search tag info : {}",mapper.writeValueAsString(proxy));
 
 
         log.info("... clossing ");
+    }
+
+    public VerificationResponse verifyQuote(Long verifierId, Long quoteId) throws Exception {
+        //get the user
+        if(!userDetailsRepo.existsByUserIdAllIgnoreCase(verifierId)){
+            throw new UserNotFoundException("User Was not found in database.");
+        }
+        //get the quote (this part is skipable )
+
+        if(!quotesRepo.existsByQuoteId(quoteId)){
+            throw  new QuoteNotFoundException("The quote was not found in database.");
+        }
+
+        try{
+            quotesRepo.updateVerifiersByQuoteId(quoteId,verifierId);
+
+            return new VerificationResponse(verifierId,
+                    "",
+                    quoteId,"");
+        }catch (DataIntegrityViolationException e){
+            throw new DatabaseException("It appears this user has already verified this Quote");
+        }catch (Exception e){
+            throw e;
+        }
+
+    }
+
+    public QuotesDTO getQuote(Long quoteId) throws QuoteNotFoundException {
+        Optional<Quotes> quotesOptional = quotesRepo.findById(quoteId);
+        if(quotesOptional.isEmpty()){
+            throw new QuoteNotFoundException();
+        }
+
+        return quoteMapper.toDTO(quotesOptional.get());
+
+    }
+
+    public QuotesDTO addQuote(QuotesDTO newQuote , Long userId) throws UserNotFoundException {
+        Optional<UserDetails> userFromDb = userDetailsRepo.findById(userId);
+        if(userFromDb.isEmpty()){
+            throw new UserNotFoundException();
+        }
+
+        Quotes quoteToSave = quoteMapper.toQuotes(newQuote);
+        quoteToSave.setSubmittedBy(userFromDb.get());
+        Quotes afterSaving = quotesRepo.save(quoteToSave);
+
+        return quoteMapper.toDTO(afterSaving);
+
     }
 
 }
