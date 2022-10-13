@@ -6,5 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface userDetailsRepository extends JpaRepository<UserDetails,Long> {
+    boolean existsByUserIdAllIgnoreCase(Long userId);
 
 }

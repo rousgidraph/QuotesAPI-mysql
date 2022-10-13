@@ -9,6 +9,7 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -29,11 +30,11 @@ public class UserDetails {
 
     @OneToMany(mappedBy = "submittedBy",fetch = FetchType.EAGER)
     @JsonBackReference
-    private Set<Quotes> submittedQuotes;
+    private Set<Quotes> submittedQuotes = new HashSet<>();
 
     @ManyToMany (mappedBy="verifiers")
     @JsonBackReference
-    private Set<Quotes> verifiedQuotes;
+    private Set<Quotes> verifiedQuotes = new HashSet<>();
 
     @Override
     public String toString() {
@@ -41,7 +42,8 @@ public class UserDetails {
                 "userId=" + userId +
                 ", firstName='" + firstName + '\'' +
                 ", secondName='" + secondName + '\'' +
-                ", dateJoined=" + dateJoined +
+                ", dateJoined=" + dateJoined +'\'' +
+                ",email=" +email+'\'' +
                 '}';
     }
 }
