@@ -4,10 +4,11 @@ An implementation of quotes api but using the MYSQL Database
 
 ## End points and Payloads
 
-#### *Add User*
+#### *Add User* 
 >Post : localhost:8080/api/v1/user/addUser
 
 *Request*
+
 ```json
 {
 	"firstName": "Samuel",
@@ -15,7 +16,9 @@ An implementation of quotes api but using the MYSQL Database
 	"email": "masculinity@male.com"
 }
 ```
+
 *Response*
+
 ```json
 {
     "userId": 2,
@@ -28,6 +31,7 @@ An implementation of quotes api but using the MYSQL Database
 ```
 
 #### *Add Quote*
+
 >Post: localhost:8080/api/v1/quote/newQuote?submittedBy=1
 
 *Request Parameters*
@@ -35,13 +39,17 @@ An implementation of quotes api but using the MYSQL Database
 |Name|Description|Example|
 |---|---|---|
 |submittedBy|Who is submitting the quote?|1|
+
 *Request*
+
 ```json
 {
 	"quoteStatement": "Courage is not the absence of fear, but the ability to act despite it. "
 }
 ```
+
 *Response*
+
 ```json
 {
     "submittedQuote": {
@@ -64,8 +72,8 @@ An implementation of quotes api but using the MYSQL Database
 ```
 
 #### *Verify the quote*
-> Get : localhost:8080/api/v1/quote/verify?quoteId=1&userId=1
 
+> Get : localhost:8080/api/v1/quote/verify?quoteId=1&userId=1
 
 *Request Parameters*
 
@@ -76,6 +84,7 @@ An implementation of quotes api but using the MYSQL Database
 
 
 *Response*
+
 ```json
 {
     "verifierId": 2,
@@ -86,14 +95,18 @@ An implementation of quotes api but using the MYSQL Database
 ```
 
 *Errors*
+
 A user can not verify a quote twice.
+
 ```json
 {
     "errorMessage": "It appears this user has already verified this Quote",
     "errorCode": 400
 }
 ```
+
 A user attempting to verify their own quote.
+
 ```json
 {
     "errorMessage": "A user can not verify their own quote, request another user to verify the quote",
@@ -101,15 +114,16 @@ A user attempting to verify their own quote.
 }
 ```
 
-
 #### *Find User*
 
 > Get : localhost:8080/api/v1/user/findUser/{userId}
 
 Url parameters
+
 |Name|Description|Example|
 |---|---|---|
 |userId|The user you are looking for. |1|
+
 *Response*
 
 ```json
@@ -125,14 +139,17 @@ Url parameters
 
 
 #### *Find Quote*
+
 > Get : http://localhost:8080/api/v1/quote/find/{quoteId}
 
 Url parameters
+
 |Name|Description|Example|
 |---|---|---|
 |quoteId|The quote you are looking for. |1|
 
 *Response*
+
 ```json
 {
     "quoteId": 1,
@@ -162,10 +179,11 @@ Body parameters
 |tagId|The tag id to add (*optional*)|1|
 |tag|The tag (string) to add  (*optional*)|"Technical"|
 
-> The request should have atleast the tag string or the tagId, not both.
+> The request should have atleast the tag string or the tagId, not both. 
 
 
 *Request*
+
 ```json
 {
     "quoteId": 2,
@@ -175,6 +193,7 @@ Body parameters
 
 
 *Response*
+
 ```json
 {
     "quoteId": 2,
@@ -184,4 +203,4 @@ Body parameters
 }
 ```
 
-
+:sunglasses: :fire:
