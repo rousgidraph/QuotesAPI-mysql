@@ -1,11 +1,13 @@
 package com.example.quotesapi.Services;
 
 import com.example.quotesapi.DTOs.QuotesDTO;
+import com.example.quotesapi.DTOs.TagQuoteDTO;
 import com.example.quotesapi.DTOs.VerificationResponse;
 import com.example.quotesapi.Domains.Quotes;
 import com.example.quotesapi.Domains.SearchTag;
 import com.example.quotesapi.Domains.UserDetails;
 import com.example.quotesapi.Exceptions.DatabaseException;
+import com.example.quotesapi.Exceptions.LogicFlowException;
 import com.example.quotesapi.Exceptions.QuoteNotFoundException;
 import com.example.quotesapi.Exceptions.UserNotFoundException;
 import com.example.quotesapi.Mappers.QuoteMapper;
@@ -13,14 +15,11 @@ import com.example.quotesapi.Repos.quotesRepository;
 import com.example.quotesapi.Repos.searchTagRepository;
 import com.example.quotesapi.Repos.userDetailsRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -43,7 +42,7 @@ public class QuoteService {
     QuoteMapper quoteMapper;
 
 
-//    @PostConstruct
+    //    @PostConstruct
     void startUp() throws JsonProcessingException {
         log.info("Starting up");
         UserDetails user1 = new UserDetails();
@@ -68,7 +67,7 @@ public class QuoteService {
         user4.setEmail("kaytlin_arguellorwh@designing.ag");
 
         //save the users
-        userDetailsRepo.saveAll(List.of(user1,user2,user3,user4));
+        userDetailsRepo.saveAll(List.of(user1, user2, user3, user4));
 
         SearchTag tag1 = new SearchTag();
         SearchTag tag2 = new SearchTag();
@@ -78,7 +77,7 @@ public class QuoteService {
 
 
         //save the tags
-        searchTagRepo.saveAll(List.of(tag1,tag2));
+        searchTagRepo.saveAll(List.of(tag1, tag2));
 
         Quotes quotes1 = new Quotes();
         Quotes quotes2 = new Quotes();
@@ -86,12 +85,12 @@ public class QuoteService {
         Quotes quotes4 = new Quotes();
 
         quotes1.setQuoteStatement("Graduation interesting founder appliances utilization expenditure albania, women representative standings upon infrastructure sao volunteers, proof personals guaranteed moss geneva denver emerging, survive. ");
-        quotes1.setVerifiers(Set.of(user1,user3));
+        quotes1.setVerifiers(Set.of(user1, user3));
         quotes1.setSubmittedBy(user4);
         quotes1.setQuoteTags(Set.of(tag1));
 
         quotes2.setQuoteStatement("Nav consoles cruz analyzes. ");
-        quotes2.setVerifiers(Set.of(user2,user4));
+        quotes2.setVerifiers(Set.of(user2, user4));
         quotes2.setSubmittedBy(user1);
         quotes1.setQuoteTags(Set.of(tag2));
 
@@ -107,7 +106,7 @@ public class QuoteService {
 
         //save the quotes
         quotesRepo.save(quotes3);
-        quotesRepo.saveAll(List.of(quotes1,quotes2,quotes4));
+        quotesRepo.saveAll(List.of(quotes1, quotes2, quotes4));
 
 //
 //        Optional<Quotes> byId = quotesRepo.findById(2L);
@@ -132,24 +131,28 @@ public class QuoteService {
 
     public VerificationResponse verifyQuote(Long verifierId, Long quoteId) throws Exception {
         //get the user
-        if(!userDetailsRepo.existsByUserIdAllIgnoreCase(verifierId)){
+        if (!userDetailsRepo.existsByUserIdAllIgnoreCase(verifierId)) {
             throw new UserNotFoundException("User Was not found in database.");
         }
         //get the quote (this part is skipable )
 
-        if(!quotesRepo.existsByQuoteId(quoteId)){
-            throw  new QuoteNotFoundException("The quote was not found in database.");
+        if (!quotesRepo.existsByQuoteId(quoteId)) {
+            throw new QuoteNotFoundException("The quote was not found in database.");
         }
 
-        try{
-            quotesRepo.updateVerifiersByQuoteId(quoteId,verifierId);
+        if (quotesRepo.findSubmitterByQuoteId(quoteId) == verifierId) {
+            throw new LogicFlowException("A user can not verify their own quote, request another user to verify the quote");
+        }
+
+        try {
+            quotesRepo.updateVerifiersByQuoteId(quoteId, verifierId);
 
             return new VerificationResponse(verifierId,
                     "",
-                    quoteId,"");
-        }catch (DataIntegrityViolationException e){
+                    quoteId, "");
+        } catch (DataIntegrityViolationException e) {
             throw new DatabaseException("It appears this user has already verified this Quote");
-        }catch (Exception e){
+        } catch (Exception e) {
             throw e;
         }
 
@@ -157,7 +160,7 @@ public class QuoteService {
 
     public QuotesDTO getQuote(Long quoteId) throws QuoteNotFoundException {
         Optional<Quotes> quotesOptional = quotesRepo.findById(quoteId);
-        if(quotesOptional.isEmpty()){
+        if (quotesOptional.isEmpty()) {
             throw new QuoteNotFoundException();
         }
 
@@ -165,9 +168,9 @@ public class QuoteService {
 
     }
 
-    public QuotesDTO addQuote(QuotesDTO newQuote , Long userId) throws UserNotFoundException {
+    public QuotesDTO addQuote(QuotesDTO newQuote, Long userId) throws UserNotFoundException {
         Optional<UserDetails> userFromDb = userDetailsRepo.findById(userId);
-        if(userFromDb.isEmpty()){
+        if (userFromDb.isEmpty()) {
             throw new UserNotFoundException();
         }
 
@@ -176,6 +179,54 @@ public class QuoteService {
         Quotes afterSaving = quotesRepo.save(quoteToSave);
 
         return quoteMapper.toDTO(afterSaving);
+
+    }
+
+
+    public TagQuoteDTO tagQuote(TagQuoteDTO tagQuoteDTO) throws Exception {
+        try {
+            if (tagQuoteDTO.getTag().isBlank()) {
+                return this.tagQuote(tagQuoteDTO.getTagId(), tagQuoteDTO.getQuoteId());
+            } else {
+                return this.tagQuote(tagQuoteDTO.getTag(), tagQuoteDTO.getQuoteId());
+            }
+        } catch (DataIntegrityViolationException e) {
+            throw new LogicFlowException("It seems that quote already has that tag.");
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    public TagQuoteDTO tagQuote(String tag, Long quoteId) throws Exception {
+        SearchTag searchTag;
+        Optional<SearchTag> byTagIgnoreCase = searchTagRepo.findByTagIgnoreCase(tag);
+        if (byTagIgnoreCase.isEmpty()) {
+            searchTag = searchTagRepo.save(new SearchTag(tag));
+        } else {
+            searchTag = byTagIgnoreCase.get();
+        }
+        if (!quotesRepo.existsByQuoteId(quoteId)) {
+            throw new QuoteNotFoundException();
+        }
+
+        quotesRepo.updateQuoteTagsByQuoteId(searchTag.getTagId(), quoteId);
+        log.info("Tag : {}  added to Quote : {} ", searchTag.getTagId(), quoteId);
+        return new TagQuoteDTO(quoteId, searchTag.getTagId(), searchTag.getTag(), "Success");
+
+    }
+
+    public TagQuoteDTO tagQuote(Long searchTagId, Long quoteId) throws Exception {
+        if (!searchTagRepo.existsByTagId(searchTagId)) {
+            throw new LogicFlowException("That Tag Id doesnt exist ");
+        }
+
+        if (!quotesRepo.existsByQuoteId(quoteId)) {
+            throw new QuoteNotFoundException();
+        }
+
+        quotesRepo.updateQuoteTagsByQuoteId(searchTagId, quoteId);
+        log.info("Tag : {}  added to Quote : {} ", searchTagId, quoteId);
+        return new TagQuoteDTO(quoteId, searchTagId, "", "Success");
 
     }
 

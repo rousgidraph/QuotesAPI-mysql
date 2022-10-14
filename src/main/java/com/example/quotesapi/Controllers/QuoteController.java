@@ -2,6 +2,7 @@ package com.example.quotesapi.Controllers;
 
 import com.example.quotesapi.DTOs.QuotesDTO;
 import com.example.quotesapi.DTOs.SuccessfulSubmissionDTO;
+import com.example.quotesapi.DTOs.TagQuoteDTO;
 import com.example.quotesapi.DTOs.VerificationResponse;
 import com.example.quotesapi.Exceptions.QuoteNotFoundException;
 import com.example.quotesapi.Exceptions.UserNotFoundException;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 
 @Controller
 @RequestMapping(path = "api/v1/quote")
@@ -34,26 +36,26 @@ public class QuoteController {
     }
     @GetMapping(path = "verify")
     public ResponseEntity<VerificationResponse> verifyQuote(@RequestParam  Long quoteId , @RequestParam Long userId ) throws Exception {
-
         String baseUrl = getBaseUrl(request);
         String viewUser = baseUrl+"/api/v1/user/findUser/";
         String viewQuote = baseUrl+"/api/v1/quote/find/";
-
-
         HttpHeaders headers= new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
         VerificationResponse verificationResponse = quoteService.verifyQuote(userId, quoteId);
-
         verificationResponse.setVerifiedBy(viewUser+verificationResponse.getVerifierId());
         verificationResponse.setQuoteLink(viewQuote+verificationResponse.getQuoteID());
-
         return new ResponseEntity<>(verificationResponse,headers , HttpStatus.OK);
     }
 
     @GetMapping(path = "find/{quoteId}")
     public ResponseEntity<QuotesDTO> getQuote(@PathVariable Long quoteId) throws QuoteNotFoundException {
-
         return new ResponseEntity<>(quoteService.getQuote(quoteId),HttpStatus.OK);
+    }
+
+    @PostMapping("addTags")
+    public ResponseEntity<TagQuoteDTO> tagQuote(@RequestBody @Valid TagQuoteDTO tagQuoteDTO) throws Exception {
+        TagQuoteDTO result = quoteService.tagQuote(tagQuoteDTO);
+        return new ResponseEntity<>(result,HttpStatus.OK);
     }
 
     private String getBaseUrl(HttpServletRequest request){

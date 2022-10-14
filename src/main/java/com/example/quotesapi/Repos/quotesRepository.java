@@ -1,6 +1,7 @@
 package com.example.quotesapi.Repos;
 
 import com.example.quotesapi.Domains.Quotes;
+import com.example.quotesapi.Domains.SearchTag;
 import com.example.quotesapi.Domains.UserDetails;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 
@@ -37,7 +39,13 @@ public interface quotesRepository extends JpaRepository<Quotes,Long> {
     @Query("select (count(q) > 0) from Quotes q where q.quoteId = ?1")
     boolean existsByQuoteId(Long quoteId);
 
+    @Transactional
+    @Modifying
+    @Query(value = "insert into tagmap (quoteId,tagId) values(:quoteId,:tagId)",nativeQuery = true)
+    int updateQuoteTagsByQuoteId(@Param("tagId") Long tagId, @Param("quoteId")  Long quoteId);
 
+    @Query("select q.submittedBy.userId from Quotes q where q.quoteId = ?1")
+    Long findSubmitterByQuoteId(Long quoteId);
 
 
 
