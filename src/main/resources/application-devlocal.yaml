@@ -9,7 +9,7 @@ spring:
     password: password
     driverClassName: com.mysql.cj.jdbc.Driver
   mvc:
-    pathmatch:
+    pathMatch:
       matching-strategy: ant_path_matcher
 
   jpa:
