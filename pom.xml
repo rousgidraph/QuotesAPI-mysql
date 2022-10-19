@@ -9,12 +9,17 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.example</groupId>
-	<artifactId>quotesApi</artifactId>
+	<artifactId>quotes-api</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>quotesApi</name>
 	<description>quotesApi</description>
 	<properties>
 		<java.version>11</java.version>
+		<docker.repo>rousgidraph</docker.repo>
+		<docker.tag>latest</docker.tag>
+		<docker.registry>registry.hub.docker.com</docker.registry>
+		<docker.name>${docker.registry}/${docker.repo}/quotesapi:${docker.tag}</docker.name>
+
 	</properties>
 	<dependencies>
 		<dependency>
@@ -98,8 +103,60 @@
 					</annotationProcessorPaths>
 				</configuration>
 			</plugin>
+			<plugin>
+        		<groupId>com.google.cloud.tools</groupId>
+        		<artifactId>jib-maven-plugin</artifactId>
+        		<version>3.3.0</version>
+        		<configuration>
+        		  <to>
+        		    <image>docker.io/rousgidraph/${artifactId}</image>
+        		  </to>
+        		</configuration>
+      		</plugin>
 		</plugins>
 
 	</build>
+
+	<profiles>
+		<profile>
+			<id>jib</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>com.google.cloud.tools</groupId>
+						<artifactId>jib-maven-plugin</artifactId>
+						<version>0.10.1</version>
+						<configuration>
+							<from>
+								<image>openjdk:11-jre</image>
+							</from>
+							<to>
+								<image>${docker.name}</image>
+							</to>
+							<container>
+								<environment>
+									<_JAVA_OPTIONS>'-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005'</_JAVA_OPTIONS>
+									<swarm.http.port>8080</swarm.http.port>
+								</environment>
+								<ports>
+									<port>8080</port>
+									<port>5005</port>
+								</ports>
+								<useCurrentTimestamp>true</useCurrentTimestamp>
+							</container>
+						</configuration>
+						<executions>
+							<execution>
+								<phase>package</phase>
+								<goals>
+									<goal>dockerBuild</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 
 </project>

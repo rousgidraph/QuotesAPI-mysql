@@ -8,6 +8,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.validation.constraints.NotNull;
+
 @Setter
 @Getter
 @AllArgsConstructor
@@ -15,6 +17,7 @@ import lombok.Setter;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @SearchTagValidator(message = "Tag Id or tag must be present. NB not both") // TODO: 13/10/2022 Confirm this is working well.
 public class TagQuoteDTO {
+    @NotNull(message = "Cant be null")
     Long quoteId;
     Long tagId;
     String tag;

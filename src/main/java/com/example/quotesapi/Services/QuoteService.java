@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -185,7 +186,7 @@ public class QuoteService {
 
     public TagQuoteDTO tagQuote(TagQuoteDTO tagQuoteDTO) throws Exception {
         try {
-            if (tagQuoteDTO.getTag().isBlank()) {
+            if (tagQuoteDTO.getTag() == null) {
                 return this.tagQuote(tagQuoteDTO.getTagId(), tagQuoteDTO.getQuoteId());
             } else {
                 return this.tagQuote(tagQuoteDTO.getTag(), tagQuoteDTO.getQuoteId());
@@ -225,9 +226,20 @@ public class QuoteService {
         }
 
         quotesRepo.updateQuoteTagsByQuoteId(searchTagId, quoteId);
+        Optional<SearchTag> byId = searchTagRepo.findById(searchTagId);
         log.info("Tag : {}  added to Quote : {} ", searchTagId, quoteId);
-        return new TagQuoteDTO(quoteId, searchTagId, "", "Success");
+        return new TagQuoteDTO(quoteId, searchTagId, byId.get().getTag(), "Success");
 
     }
 
+    public List<QuotesDTO> getQuotesByTag(String tag){
+        List<QuotesDTO> result = new ArrayList<>();
+        log.info("Searching by quotes by tag :  {}",tag);
+        quotesRepo.findByQuoteTags_TagContainsIgnoreCase(tag).forEach(quote ->{
+            result.add(quoteMapper.toDTO(quote));
+
+        });
+
+         return result;
+    }
 }
