@@ -7,9 +7,11 @@ import com.example.quotesapi.DTOs.VerificationResponse;
 import com.example.quotesapi.Exceptions.QuoteNotFoundException;
 import com.example.quotesapi.Exceptions.UserNotFoundException;
 import com.example.quotesapi.Services.QuoteService;
+import com.example.quotesapi.Utils.HttpUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.logging.log4j.CloseableThreadContext;
+import org.slf4j.MDC;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -52,7 +54,12 @@ public class QuoteController {
 
     @GetMapping(path = "find/{quoteId}")
     public ResponseEntity<QuotesDTO> getQuote(@PathVariable Long quoteId) throws QuoteNotFoundException {
-        return new ResponseEntity<>(quoteService.getQuote(quoteId),HttpStatus.OK);
+//        try(final CloseableThreadContext.Instance ignored = CloseableThreadContext.put("Source Ip", HttpUtils.getClientIpAddressIfServletRequestExist())) {
+        MDC.put("Source Ip", HttpUtils.getClientIpAddressIfServletRequestExist());
+            ResponseEntity<QuotesDTO> quotesDTOResponseEntity = new ResponseEntity<>(quoteService.getQuote(quoteId), HttpStatus.OK);
+        MDC.clear();
+            return quotesDTOResponseEntity;
+//        }
     }
 
     @GetMapping(path = "find")
