@@ -54,12 +54,12 @@ public class QuoteController {
 
     @GetMapping(path = "find/{quoteId}")
     public ResponseEntity<QuotesDTO> getQuote(@PathVariable Long quoteId) throws QuoteNotFoundException {
-//        try(final CloseableThreadContext.Instance ignored = CloseableThreadContext.put("Source Ip", HttpUtils.getClientIpAddressIfServletRequestExist())) {
-        MDC.put("Source Ip", HttpUtils.getClientIpAddressIfServletRequestExist());
+        try(final CloseableThreadContext.Instance ignored = CloseableThreadContext.put("Source Ip", HttpUtils.getClientIpAddressIfServletRequestExist())) {
+//        MDC.put("Source Ip", HttpUtils.getClientIpAddressIfServletRequestExist());
             ResponseEntity<QuotesDTO> quotesDTOResponseEntity = new ResponseEntity<>(quoteService.getQuote(quoteId), HttpStatus.OK);
-        MDC.clear();
+//        MDC.clear();
             return quotesDTOResponseEntity;
-//        }
+        }
     }
 
     @GetMapping(path = "find")
