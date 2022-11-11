@@ -160,8 +160,10 @@ public class QuoteService {
     }
 
     public QuotesDTO getQuote(Long quoteId) throws QuoteNotFoundException {
+        log.warn("Searching for quote with id : {}",quoteId);
         Optional<Quotes> quotesOptional = quotesRepo.findById(quoteId);
         if (quotesOptional.isEmpty()) {
+            log.error("Quote with id {} doesnt exist ",quoteId);
             throw new QuoteNotFoundException();
         }
 
