@@ -23,6 +23,7 @@ import java.util.concurrent.atomic.AtomicReference;
 @Slf4j
 public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
 
+
     @Override
     protected ResponseEntity<Object> handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         return handleGenericErrors(ex);

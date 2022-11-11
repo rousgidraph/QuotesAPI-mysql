@@ -8,6 +8,7 @@ import com.example.quotesapi.Exceptions.QuoteNotFoundException;
 import com.example.quotesapi.Exceptions.UserNotFoundException;
 import com.example.quotesapi.Services.QuoteService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -19,10 +20,12 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.List;
 
 @Controller
 @RequestMapping(path = "api/v1/quote")
 @RequiredArgsConstructor
+@Slf4j
 public class QuoteController {
 
     private final HttpServletRequest request;
@@ -50,6 +53,14 @@ public class QuoteController {
     @GetMapping(path = "find/{quoteId}")
     public ResponseEntity<QuotesDTO> getQuote(@PathVariable Long quoteId) throws QuoteNotFoundException {
         return new ResponseEntity<>(quoteService.getQuote(quoteId),HttpStatus.OK);
+    }
+
+    @GetMapping(path = "find")
+    public ResponseEntity<List<QuotesDTO>>  getQuotesByTag(@RequestParam String searchWord){
+
+        List<QuotesDTO> byTag = quoteService.getQuotesByTag(searchWord);
+
+        return new ResponseEntity<>(byTag,HttpStatus.OK);
     }
 
     @PostMapping("addTags")

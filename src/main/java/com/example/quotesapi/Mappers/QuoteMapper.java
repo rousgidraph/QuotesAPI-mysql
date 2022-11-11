@@ -22,7 +22,6 @@ public abstract class QuoteMapper {
         quotesDTO.setVerifiersCount(quotes.getVerifiers().size());
         quotesDTO.setSubmittedBy(userMapper.UserDetailsToUserDetailsDTO(quotes.getSubmittedBy()));
 
-
     }
 
     public abstract QuotesDTO toDTO(Quotes quotes);

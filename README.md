@@ -4,7 +4,7 @@ An implementation of quotes api but using the MYSQL Database
 
 ## End points and Payloads
 
-#### *Add User* 
+#### *Add User*
 >Post : localhost:8080/api/v1/user/addUser
 
 *Request*
@@ -179,7 +179,7 @@ Body parameters
 |tagId|The tag id to add (*optional*)|1|
 |tag|The tag (string) to add  (*optional*)|"Technical"|
 
-> The request should have atleast the tag string or the tagId, not both. 
+> The request should have atleast the tag string or the tagId, not both.
 
 
 *Request*
@@ -204,3 +204,98 @@ Body parameters
 ```
 
 :sunglasses: :fire:
+
+## Containerisation
+
+I've made use of JIB from google to assist with the creating of a docker container.
+There are several ways to achieve this, not sure if there is a better way. (:unamused: Still have a lot to learn.)
+
+### Add a JIB Profile
+
+```xml
+<profiles>
+   <profile>
+      <id>jib</id>
+      <build>
+         <plugins>
+            <plugin>
+               <groupId>com.google.cloud.tools</groupId>
+               <artifactId>jib-maven-plugin</artifactId>
+               <version>0.10.1</version>
+               <configuration>
+                  <from>
+                     <image>openjdk:11-jre</image>
+                  </from>
+                  <to>
+                     <image>${docker.name}</image>
+                  </to>
+                  <container>
+                     <environment>
+                        <_JAVA_OPTIONS>'-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005'</_JAVA_OPTIONS>
+                        <swarm.http.port>8080</swarm.http.port>
+                     </environment>
+                     <ports>
+                        <port>8080</port>
+                        <port>5005</port>
+                     </ports>
+                     <useCurrentTimestamp>true</useCurrentTimestamp>
+                  </container>
+               </configuration>
+               <executions>
+                  <execution>
+                     <phase>package</phase>
+                     <goals>
+                        <goal>dockerBuild</goal>
+                     </goals>
+                  </execution>
+               </executions>
+            </plugin>
+         </plugins>
+      </build>
+   </profile>
+</profiles>
+
+```
+#### Load To Docker Demon (locally)
+```
+ mvn package -Pjib
+```
+
+#### Load To Docker hub
+
+```
+mvn jib:build -Pjib
+```
+
+### Add JIB Directly as a plugin
+
+```xml
+<plugin>
+   <groupId>com.google.cloud.tools</groupId>
+   <artifactId>jib-maven-plugin</artifactId>
+   <version>3.3.0</version>
+   <configuration>
+      <to>
+         <image>docker.io/rousgidraph/${artifactId}</image>
+      </to>
+   </configuration>
+</plugin>
+```
+
+#### Load To Docker Demon (locally)
+
+```
+mvn compile jib:dockerBuild
+```
+
+#### Load To Docker hub
+
+```
+mvn compile com.google.cloud.tools:jib-maven-plugin:2.5.0:build -Dimage=quotes-api-mysql
+```
+
+
+
+
+
+
