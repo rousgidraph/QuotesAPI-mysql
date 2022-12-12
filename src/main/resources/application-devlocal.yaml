@@ -1,17 +1,18 @@
 ## spring configs
-spring:
+server:
+  port: 5000
 
+spring:
   datasource:
-    username: springboot
+    username: admin
     url: jdbc:mysql://localhost:3306/quotesData
-    password: springboot
+    password: password
+    driverClassName: com.mysql.cj.jdbc.Driver
+  mvc:
+    pathMatch:
+      matching-strategy: ant_path_matcher
+
   jpa:
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.MySQL8Dialect
-        format_sql: 'false'
     hibernate:
-      naming:
-        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
-      ddl-auto: none
-    show-sql: 'false'
+      ddlAuto: update
+    show-sql: true
